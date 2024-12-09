@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar-se</title>
+    <style>
+        /* ======== Estilo Geral ======== */
+        body {
+            font-family: Arial, sans-serif;
+            background: url('/fundo.svg') no-repeat center center fixed;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            width: 800px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        /* ======== Coluna Esquerda ======== */
+        .left {
+            background-color: #2c6b96;
+            color: white;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .left img {
+            width: 80px;
+            margin-bottom: 20px;
+        }
+
+        .left h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .left a {
+            text-decoration: none;
+            background-color: white;
+            color: #2c6b96;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        .left a:hover {
+            background-color: #e6e6e6;
+        }
+
+        /* ======== Coluna Direita ======== */
+        .right {
+            flex: 2;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .right h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #000;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="number"],
+        input[type="password"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            background-color: #2c6b96;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        button:hover {
+            background-color: #1a4d6d;
+        }
+
+        .text-center a {
+            font-size: 14px;
+            color: #2c6b96;
+            text-decoration: none;
+        }
+
+        .text-center a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Coluna Direita (Formulário) -->
+        <div class="right">
+            <h2>Cadastre-se</h2>
+            <% if (query.error === 'rm_exists') { %>
+                <div class="alert alert-danger">
+                    O RM informado já está cadastrado.
+                </div>
+            <% } %>
+            <form action="/register" method="POST">
+                <input type="text" id="Nome" name="Nome" placeholder="Nome Completo" required>
+                <input type="text" id="Sobrenome" name="Sobrenome" placeholder="Sobrenome" required>
+                <input type="email" id="email" name="email" placeholder="E-mail" required>
+                <input type="number" id="rm" name="rm" placeholder="RM" required>
+                <div class="mb-3">
+                                <label for="etec" class="form-label">ETEC</label>
+                                <select class="form-select" id="etec" name="etec" required>
+                                    <option value="" disabled selected>Selecione sua ETEC</option>
+                                    <option value="043">Etec Bento Quirino - Campinas</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="curso" class="form-label">Curso</label>
+                                <select class="form-select" id="curso" name="curso" required>
+                                    <option value="" disabled selected>Selecione seu curso</option>
+                                    <option value="1">Ensino Médio Integrado Com Técnico em Administração - (M-Tec - N)</option>
+                                    <option value="2">Ensino Médio Integrado Com Técnico em Administração - (M-tec - PI)</option>
+                                    <option value="3">Ensino Médio Integrado Com Técnico em Desenvolvimento de Sistemas - (M-Tec - N)</option>
+                                    <option value="4">Ensino Médio Integrado Com Técnico em Desenvolvimento de Sistemas - (M-Tec)</option>
+                                    <option value="5">Ensino Médio Integrado Com Técnico em Desenvolvimento de Sistemas - (M-Tec/AMS)</option>
+                                    <option value="6">Ensino Médio Integrado Com Técnico em Eletrônica - (M-tec - PI)</option>
+                                    <option value="7">Ensino Médio Integrado Com Técnico em Eletrotécnica - (M-Tec)</option>
+                                    <option value="8">Ensino Médio Integrado Com Técnico em Logística - (M-tec - PI)</option>
+                                    <option value="9">Ensino Médio Integrado Com Técnico em Mecânica - (M-tec - PI)</option>
+                                    <option value="10">Técnico Modular em Eletrônica</option>
+                                    <option value="11">Técnico Modular em Eletrotécnica</option>
+                                    <option value="12">Técnico Modular em Administração</option>
+                                    <option value="13">Técnico Modular em Comércio</option>
+                                    <option value="14">Técnico Modular em Desenvolvimento de Sistemas</option>
+                                    <option value="15">Técnico Modular em Mecânica</option>
+
+                                </select>
+                            </div>
+
+                    
+                <input type="password" id="password" name="password" placeholder="Senha" required>
+                <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirmar Senha" required>
+                <button type="submit">Criar Conta</button>
+            </form>
+        </div>
+
+        <!-- Coluna Esquerda -->
+        <div class="left">
+            <img src="/logo.svg" alt="Logo">
+            <h2>Se você já criou sua conta<br> clique no botão abaixo para logar</h2>
+            <a href="/login">Login</a>
+        </div>
+    </div>
+</body>
+
+</html>
