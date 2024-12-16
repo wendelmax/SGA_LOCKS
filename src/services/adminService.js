@@ -32,7 +32,7 @@ class AdminService {
             name: admin,
             email,
             etec,
-            approvalToken, // Enviar o token de aprovação gerado
+            approvalToken, 
         });
 
         return newAdmin;

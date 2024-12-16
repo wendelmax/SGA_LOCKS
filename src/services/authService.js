@@ -1,4 +1,3 @@
-// AuthService.js
 
 const bcrypt = require('bcryptjs');
 const prisma = require('../config/database');

@@ -2,6 +2,7 @@ const express = require('express');
 const { requireAuth } = require('../middleware/requireAuth');  
 const AuthController = require('../controllers/authController');
 const AdminController = require('../controllers/adminController');
+const lockerController = require("../controllers/lockerController");
 const router = express.Router();
 
 
@@ -54,5 +55,27 @@ router.get('/profile', requireAuth, (req, res) => {
 
 // Logout do usuário
 router.get('/logout', AuthController.logout);
+
+
+router.get('/lockers', lockerController.getLockersPage);
+
+// Rota para renderizar a página de adicionar armário
+router.get('/lockers/add', lockerController.getAddLockerPage);
+
+// Rota para adicionar um armário
+router.post('/lockers/add', lockerController.postAddLocker);
+
+// Rota para renderizar a página de editar armário
+router.get('/lockers/edit/:id', lockerController.getEditLockerPage);
+
+// Rota para atualizar um armário
+router.post('/lockers/edit/:id', lockerController.postEditLocker);
+
+// Rota para deletar um armário
+router.post('/lockers/delete/:id', lockerController.deleteLocker);
+
+
+
+
 
 module.exports = router;

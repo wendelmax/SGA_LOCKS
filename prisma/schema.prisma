@@ -14,12 +14,25 @@ model User {
   Sobrenome        String
   email            String   @unique
   password         String
-  etec             String   @default("default_etec") 
-  curso            String   @default("default_curso")
+  etec             String   
+  curso            String
   emailVerified    Boolean  @default(false)
   verificationToken String?
-  resetToken String? @unique // Agora resetToken é único
+  resetToken        String?  @unique
 
+  lockers          Locker[]
+}
+
+model Locker {
+  id           Int      @id @default(autoincrement())
+  number       Int
+  location     String
+  status       String   @default("available")
+  etec         String   
+  userId       Int?
+  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  startDate    DateTime?
+  endDate      DateTime?
 }
 
 
@@ -27,13 +40,16 @@ model User {
 
 model Admin {
   id          Int     @id @default(autoincrement())
-  admin       String  @unique @db.VarChar(100)  // Nome de usuário
-  email       String? @unique @db.VarChar(255)  // Opcional
+  admin       String  @unique @db.VarChar(100) 
+  email       String? @unique @db.VarChar(255)  
   password    String  @db.VarChar(255)
   etec        String  @default("default_etec")
   resetToken  String? @db.VarChar(255)
-  approvalToken String? @db.VarChar(255)  // Novo campo
-  approved    Boolean @default(false)  // Indica se o admin foi aprovado
+  approvalToken String? @db.VarChar(255) 
+  approved    Boolean @default(false)  
 }
+
+
+
 
 

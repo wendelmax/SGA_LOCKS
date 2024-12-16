@@ -1,5 +1,3 @@
-// AuthController.js
-
 const AuthService = require('../services/AuthService');
 
 class AuthController {

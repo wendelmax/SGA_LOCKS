@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+    <link rel="icon" href="/logo.svg" type="image/x-icon">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= title %></title>
@@ -95,7 +96,7 @@
             font-size: 16px;
         }
 
-        button {
+        .admentrar {
             width: 100%;
             background-color: #2c6b96;
             color: white;
@@ -108,7 +109,7 @@
             text-transform: uppercase;
         }
 
-        button:hover {
+        .admentrar:hover {
             background-color: #1a4d6d;
         }
 
@@ -120,6 +121,23 @@
 
         .text-center a:hover {
             text-decoration: underline;
+        }   
+          .alunobotao{
+            width: 100%;
+            background-color: #e98706; 
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            
+        }.alunobotao:hover{
+
+            background-color:  #ae6404 
+
         }
     </style>
 </head>
@@ -138,13 +156,15 @@
             <h2>Login</h2>
             <% if (error) { %>
                 <p style="color: red;">
-                    <%= error === 'invalid' ? 'Usuário ou senha inválidos!' : 'Email não verificado!' %>
+                    <%= error === 'invalid' ? 'Usuário ou senha inválidos!' : 'Erro no servidor!' %>
                 </p>
             <% } %>
             <form action="/loginAdm" method="POST">
                 <input type="email" name="email" placeholder="Email" required>
                 <input type="password" name="password" placeholder="Senha" required>
-                <button type="submit">Entrar</button>
+                <button type="submit"  class="admentrar">Entrar</button>
+                <a href="/login"> <button type="button" id="alunobotao" class="alunobotao" onclick="setAdmin()">Entrar como Aluno</button></a>
+
                 <div class="text-center">
                     <a href="/reset-password">Esqueceu sua senha?</a>
                 </div>

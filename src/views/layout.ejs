@@ -3,25 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %></title>
+    <title>Gerenciador de Armários</title>
     <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
     <header>
+        <h1>Gerenciador de Armários</h1>
         <nav>
-            <ul>
-                <% if (typeof userName !== "undefined") { %>
-                    <li>Bem-vindo, <%= userName %></li>
-                    <li><a href="/logout">Logout</a></li>
-                <% } else { %>
-                    <li><a href="/loginAdm">Login</a></li>
-                    <li><a href="/registerAdm">Registrar</a></li>
-                <% } %>
-            </ul>
+            <a href="/lockers">Todos os Armários</a>
+            <a href="/lockers/create">Criar Novo</a>
         </nav>
     </header>
     <main>
-        <%- body %>
+        <%= body %>
     </main>
 </body>
 </html>

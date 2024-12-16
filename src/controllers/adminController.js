@@ -1,11 +1,11 @@
 const adminService = require('../services/adminService');
-const { sendRegistrationApprovalEmail } = require('../services/emailService');  // Corrigir importação
+const { sendRegistrationApprovalEmail } = require('../services/emailService');
 const { generateToken } = require('../utils/tokenGenerator');
 const prisma = require('../config/database');
 
 exports.getLogin = (req, res) => {
     if (req.session.userId) {
-        return res.redirect("/tasks");
+        return res.redirect("/lockers"); 
     }
     res.render("content/loginAdm", {
         title: 'Login',
@@ -16,7 +16,7 @@ exports.getLogin = (req, res) => {
 exports.postLogin = async (req, res) => {
     const { email, password } = req.body;
 
-    // Verifica se o email foi fornecido
+
     if (!email) {
         return res.redirect("/loginAdm?error=email_required");
     }
@@ -40,20 +40,19 @@ exports.postLogin = async (req, res) => {
             return res.redirect("/loginAdm?error=invalid_password");
         }
 
-        // Configura a sessão e redireciona para a página de tarefas
+        // Configura a sessão e redireciona para a página de gerenciar armários
         req.session.userId = user.id;
         req.session.userEmail = user.email;
-        return res.redirect("/tasks");
+        return res.redirect("/lockers"); 
     } catch (error) {
         console.error("Erro ao fazer login:", error);
         res.redirect("/loginAdm?error=server");
     }
 };
 
-
 exports.getRegister = (req, res) => {
     if (req.session.userId) {
-        return res.redirect("/tasks");
+        return res.redirect("/lockers"); 
     }
     res.render("content/registerAdm", {
         title: 'Registrar-se',
@@ -81,16 +80,13 @@ exports.postRegister = async (req, res) => {
     }
 };
 
-
-
-
 exports.approveUser = async (req, res) => {
     const { token } = req.params;
 
     try {
         // Use findFirst() para buscar o usuário pelo approvalToken
         const user = await prisma.admin.findFirst({
-            where: { approvalToken: token }, // Buscando pelo approvalToken
+            where: { approvalToken: token }, 
         });
 
         // Se o usuário não for encontrado, retorne um erro
@@ -100,7 +96,7 @@ exports.approveUser = async (req, res) => {
 
         // Atualize o usuário aprovando e removendo o approvalToken
         const updatedUser = await prisma.admin.update({
-            where: { id: user.id }, // Usando o id para atualização
+            where: { id: user.id }, 
             data: { approved: true, approvalToken: null },
         });
 
@@ -111,12 +107,11 @@ exports.approveUser = async (req, res) => {
     }
 };
 
-
 exports.rejectUser = async (req, res) => {
     const { token } = req.params;
 
     try {
-        const user = await prisma.user.delete({
+        const user = await prisma.admin.delete({
             where: { approvalToken: token },
         });
 
@@ -127,11 +122,13 @@ exports.rejectUser = async (req, res) => {
     }
 };
 
+
+
 exports.logout = (req, res) => {
     req.session.destroy((err) => {
         if (err) {
             console.error("Erro ao encerrar sessão:", err);
-            return res.redirect("/tasks");
+            return res.redirect("/lockers"); // Mantém o redirecionamento para a página de armários
         }
         res.redirect("/loginAdm");
     });
