@@ -7,49 +7,281 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Modelo da Escola (Entidade Administrativa)
+model School {
+  id              Int       @id @default(autoincrement())
+  code            String    @unique // Código oficial da escola
+  name            String
+  address         String
+  city            String
+  state           String
+  phone           String
+  email           String
+  principal       String    // Diretor(a)
+  coordinator     String    // Coordenador(a)
+  type            String    // Tipo de escola: pública, privada, técnica, etc.
+  active          Boolean   @default(true)
+  students        User[]    // Alunos
+  lockers         Locker[]
+  products        Product[]
+  staff           Admin[]   // Funcionários administrativos
+  config          SystemConfig?
+  structures      PhysicalStructure[]
+  layouts         LayoutConfig[]
+  locationTemplates LocationTemplate[]
+  maintenances    Maintenance[]
+  priceTemplates  PriceTemplate[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// Modelo de Usuário (Aluno)
 model User {
-  id               Int      @id @default(autoincrement())
-  rm               Int
-  Nome             String
-  Sobrenome        String
-  email            String   @unique
+  id               Int       @id @default(autoincrement())
+  studentId        Int       @unique    // Número de matrícula
+  firstName        String
+  lastName         String
+  email            String    @unique
   password         String
-  etec             String   
-  curso            String
-  emailVerified    Boolean  @default(false)
+  schoolId         Int
+  school           School    @relation(fields: [schoolId], references: [id])
+  course           String
+  period           Int      // 1, 2, 3, 4 etc.
+  educationType    String   // "technical", "highschool", "elementary", etc.
+  emailVerified    Boolean   @default(false)
   verificationToken String?
-  resetToken        String?  @unique
-
-  lockers          Locker[]
+  resetToken       String?   @unique
+  active           Boolean   @default(true)
+  rentals          Rental[]
+  orders           Order[]
+  createdAt        DateTime  @default(now())
+  expiresAt        DateTime  // Data de expiração da conta
+  updatedAt        DateTime  @updatedAt
 }
 
+// Modelo de Armário
 model Locker {
-  id           Int      @id @default(autoincrement())
-  number       Int
-  location     String
-  status       String   @default("available")
-  etec         String   
-  userId       Int?
-  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  startDate    DateTime?
-  endDate      DateTime?
+  id              Int       @id @default(autoincrement())
+  locationId      String    @unique // ID de localização baseado no padrão da escola
+  structureId     Int      // ID da estrutura física onde o armário está
+  structure       PhysicalStructure @relation(fields: [structureId], references: [id])
+  position        Int      // Posição dentro da estrutura
+  qrCode          String    @unique // URL ou dados do QR code
+  status          String    @default("available") // available, reserved, rented, maintenance
+  schoolId        Int
+  school          School    @relation(fields: [schoolId], references: [id])
+  description     String?   // Descrição ou observações sobre o armário
+  condition       String    // Condição física do armário
+  pricePeriod     Float     // Preço por período
+  priceYear       Float     // Preço anual
+  lastMaintenance DateTime?
+  photoUrl        String?
+  rentals         Rental[]
+  maintenances    Maintenance[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([structureId, position]) // Não pode haver dois armários na mesma posição dentro da estrutura
 }
 
+// Modelo de Aluguel
+model Rental {
+  id             String    @id @default(uuid())
+  lockerId       Int
+  locker         Locker    @relation(fields: [lockerId], references: [id])
+  userId         Int
+  user           User      @relation(fields: [userId], references: [id])
+  startDate      DateTime
+  endDate        DateTime
+  rentType       String    // "period" ou "year"
+  value          Float
+  status         String    // active, expired, cancelled
+  payment        Payment?
+  contractUrl    String    // URL do contrato assinado
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
 
+// Modelo de Pagamento
+model Payment {
+  id             String    @id @default(uuid())
+  rentalId       String    @unique
+  rental         Rental    @relation(fields: [rentalId], references: [id])
+  amount         Float
+  method         String    // pix, credit_card, debit_card
+  status         String    // pending, paid, failed, refunded
+  paymentDetails Json?     // Detalhes específicos do método de pagamento
+  transactionId  String?   // ID da transação do gateway de pagamento
+  paidAt         DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
 
+// Modelo de Produto da Loja
+model Product {
+  id          Int         @id @default(autoincrement())
+  name        String
+  description String
+  price       Float
+  schoolId    Int
+  school      School     @relation(fields: [schoolId], references: [id])
+  stock       Int         @default(0)
+  imageUrl    String?
+  category    String
+  active      Boolean     @default(true)
+  orderItems  OrderItem[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
 
+// Modelo de Pedido da Loja
+model Order {
+  id             String      @id @default(uuid())
+  userId         Int
+  user           User        @relation(fields: [userId], references: [id])
+  items          OrderItem[]
+  total          Float
+  status         String      // pending, paid, cancelled
+  paymentMethod  String      // pix, credit_card, debit_card
+  paymentDetails Json?
+  paymentId      String?     // ID do pagamento no gateway
+  paidAt         DateTime?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}
+
+// Modelo de Item do Pedido
+model OrderItem {
+  id        Int      @id @default(autoincrement())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id])
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Float    // Preço no momento da compra
+}
+
+// Modelo de Administrador
 model Admin {
-  id          Int     @id @default(autoincrement())
-  admin       String  @unique @db.VarChar(100) 
-  email       String? @unique @db.VarChar(255)  
-  password    String  @db.VarChar(255)
-  etec        String  @default("default_etec")
-  resetToken  String? @db.VarChar(255)
-  approvalToken String? @db.VarChar(255) 
-  approved    Boolean @default(false)  
+  id            Int      @id @default(autoincrement())
+  name          String
+  email         String   @unique
+  password      String
+  schoolId      Int
+  school        School   @relation(fields: [schoolId], references: [id])
+  role          String   @default("admin") // admin, manager
+  active        Boolean  @default(true)
+  lastLogin     DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
+// Modelo de Configurações do Sistema
+model SystemConfig {
+  id                Int      @id @default(autoincrement())
+  schoolId          Int      @unique
+  school            School   @relation(fields: [schoolId], references: [id])
+  // Configurações de Aluguel
+  periodRentDays    Int      // Duração do aluguel por período em dias
+  yearRentDays      Int      // Duração do aluguel anual em dias
+  reservationHours  Int      // Horas para completar a reserva
+  paymentMethods    String[] // Métodos de pagamento aceitos
+  maintenanceEmail  String   // Email para notificações de manutenção
+  
+  // Configurações de Estrutura
+  layoutConfig      LayoutConfig?
+  updatedAt         DateTime @updatedAt
+}
 
+// Modelo de Estrutura Física
+model PhysicalStructure {
+  id          Int       @id @default(autoincrement())
+  schoolId    Int
+  school      School    @relation(fields: [schoolId], references: [id])
+  name        String    // Nome da estrutura (ex: "Prédio Principal", "Anexo")
+  type        String    // building, floor, corridor, section
+  parentId    Int?      // Referência à estrutura pai (opcional)
+  parent      PhysicalStructure? @relation("StructureHierarchy", fields: [parentId], references: [id])
+  children    PhysicalStructure[] @relation("StructureHierarchy")
+  description String?
+  order       Int      // Ordem de exibição/organização
+  active      Boolean  @default(true)
+  lockers     Locker[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
+  @@unique([schoolId, type, name]) // Não pode haver estruturas com mesmo nome e tipo na escola
+}
 
+// Modelo de Configuração de Layout
+model LayoutConfig {
+  id              Int       @id @default(autoincrement())
+  schoolId        Int
+  school          School    @relation(fields: [schoolId], references: [id])
+  structureTypes  String[]  // Tipos de estrutura que a escola usa (building, floor, corridor, section)
+  namingPattern   String    // Padrão de nomenclatura dos armários
+  defaultCapacity Json      // Capacidade padrão para cada tipo de estrutura
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
+  @@unique([schoolId])
+}
+
+// Modelo de Template de Localização
+model LocationTemplate {
+  id          Int      @id @default(autoincrement())
+  schoolId    Int
+  school      School   @relation(fields: [schoolId], references: [id])
+  name        String   // Nome do template
+  pattern     String   // Padrão de formatação (ex: "{building}-{floor}-{position}")
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([schoolId, name])
+}
+
+// Modelo de Manutenção
+model Maintenance {
+  id          Int      @id @default(autoincrement())
+  lockerId    Int
+  locker      Locker   @relation(fields: [lockerId], references: [id])
+  schoolId    Int
+  school      School   @relation(fields: [schoolId], references: [id])
+  type        String   // routine, repair, cleaning
+  description String
+  status      String   // scheduled, in_progress, completed
+  scheduledFor DateTime
+  completedAt DateTime?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Modelo de Template de Preços
+model PriceTemplate {
+  id          Int      @id @default(autoincrement())
+  schoolId    Int
+  school      School   @relation(fields: [schoolId], references: [id])
+  name        String   // Nome do template (ex: "Preço Padrão", "Promoção Semestral")
+  periodPrice Float    // Preço por período
+  yearPrice   Float    // Preço anual
+  active      Boolean  @default(true)
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([schoolId, name])
+}
+
+// Modelo de Mapeamento de QR Code
+model QRCodeMapping {
+  id          Int      @id @default(autoincrement())
+  lockerId    Int      @unique // Cada armário tem um QR code único
+  qrCodeData  String   @unique // Dados codificados no QR code
+  generatedAt DateTime @default(now())
+  lastScanned DateTime?
+  scanCount   Int      @default(0)
+  active      Boolean  @default(true)
+}
